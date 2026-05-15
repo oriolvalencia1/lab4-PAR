@@ -1,0 +1,145 @@
+% ==================================================================
+\section{Iterative: Fine Grain Task Decomposition}
+\label{sec:iter-fine}
+% ==================================================================
+
+\subsection{Implementation}
+\label{sec:iter-fine-impl}
+
+The \textbf{fine grain iterative} strategy extends the Tile version by exploiting the
+additional parallelism that exists \emph{inside} each tile.
+Rather than completing the border check and fill/compute sequentially within each tile
+task, the fine grain version exposes three independent sub-tasks per tile:
+
+\begin{enumerate}
+    \item A task that computes the \emph{vertical} borders of the tile (left and right
+          columns), setting \texttt{eV}.
+    \item A task that computes the \emph{horizontal} borders (top and bottom rows,
+          including all four corners), setting \texttt{eH}.
+    \item A task (spawned after \texttt{\#pragma~omp~taskgroup} ensures both border tasks
+          have finished) that either fills the tile uniformly or, in the non-uniform case,
+          spawns one child task per row to compute all interior pixels.
+\end{enumerate}
+
+The outer tile task from the Tile version is \textbf{kept} as a wrapper; the three inner
+tasks are created inside it.
+
+\begin{lstlisting}[caption={Key parallel section of \texttt{fine-grain.c} -- inner tasks
+                   for each tile.}, label={lst:fine-grain}]
+#pragma omp parallel
+#pragma omp single
+for (int y = 0; y < ROWS; y += TILE)
+    for (int x = 0; x < COLS; x += TILE) {
+        #pragma omp task firstprivate(x, y)
+        {
+            int eV, eH;
+
+            #pragma omp taskgroup
+            {
+                // Task 1: vertical borders (left & right columns)
+                #pragma omp task shared(eV)
+                {
+                    eV = 1;
+                    int ref = pixel_dwell(..., x, y, ...);
+                    for (int py = y; py < y + TILE; py++) {
+                        M[py][x]        = pixel_dwell(..., x,        py, ...);
+                        M[py][x+TILE-1] = pixel_dwell(..., x+TILE-1, py, ...);
+                        eV &= (ref == M[py][x]);
+                        eV &= (ref == M[py][x+TILE-1]);
+                    }
+                }
+                // Task 2: horizontal borders (top & bottom rows)
+                #pragma omp task shared(eH)
+                {
+                    eH = 1;
+                    for (int px = x; px < x + TILE; px++) {
+                        M[y][px]        = pixel_dwell(..., px, y,        ...);
+                        M[y+TILE-1][px] = pixel_dwell(..., px, y+TILE-1, ...);
+                        eH &= (M[y][x] == M[y][px]);
+                        eH &= (M[y][x] == M[y+TILE-1][px]);
+                    }
+                }
+            } // implicit taskwait -- eH and eV are ready here
+
+            // Task 3: fill or compute (spawns per-row child tasks)
+            #pragma omp task
+            {
+                if (eH & eV) {                       // uniform tile
+                    for (int py = y; py < y + TILE; py++)
+                        #pragma omp task
+                        fill_row(M, py, x, TILE, M[y][x], ...);
+                } else {                             // non-uniform tile
+                    for (int py = y; py < y + TILE; py++)
+                        #pragma omp task
+                        compute_row(M, py, x, TILE, ...);
+                }
+            }
+        }
+    }
+\end{lstlisting}
+
+The \texttt{\#pragma~omp~taskgroup} enforces that the result tasks begin only after
+\emph{both} border tasks complete, because the fill/compute decision depends on
+\texttt{eV} and \texttt{eH}.
+Histogram increments remain protected by \texttt{\#pragma~omp~atomic}.
+Display updates use \texttt{\#pragma~omp~critical} to serialize X11 calls.
+
+\paragraph{Comparison with Iterative Tile.}
+The Tile version creates $\bigl(\mathit{ROWS}/\mathit{TILE}\bigr)^{2}$ tasks in total.
+The Fine Grain version creates up to $3 + 2\cdot\mathit{TILE}$ tasks \emph{per tile},
+increasing the task count by roughly $2\cdot\mathit{TILE}$ fold.
+This exposes more parallelism at the cost of higher task-creation and synchronisation
+overhead; whether the trade-off is beneficial depends on tile size and thread count.
+
+\subsection{Modelfactor Analysis}
+\label{sec:iter-fine-mf}
+
+% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-fine-grain
+%       Paste Modelfactors tables and compare with the Tile version.
+
+\todo[inline]{Insert Modelfactors table for \texttt{fine-grain} (16 threads).
+Compare with Iterative Tile: does finer granularity improve useful parallelism or does
+scheduling overhead dominate?}
+
+\subsection{Paraver Analysis}
+\label{sec:iter-fine-paraver}
+
+% TODO: Include Paraver views for 16 threads and compare with Iterative Tile.
+%   - "Useful/Instantaneous parallelism"
+%   - "OpenMP tasking / explicit tasks function created and executed"
+%   Compare task density, idle gaps, and load balance with the Tile trace.
+
+\todo[inline]{Insert Paraver screenshots (16 threads) for Fine Grain and compare with
+the Tile trace. Comment on whether the extra tasks reduce idle time or introduce
+additional overhead.}
+
+% \begin{figure}[H]
+%   \centering
+%   \begin{subfigure}[b]{0.48\linewidth}
+%     \includegraphics[width=\linewidth]{fotos/iter-tile-paraver-tasks.png}
+%     \caption{Iterative Tile.}
+%   \end{subfigure}
+%   \hfill
+%   \begin{subfigure}[b]{0.48\linewidth}
+%     \includegraphics[width=\linewidth]{fotos/iter-fine-paraver-tasks.png}
+%     \caption{Iterative Fine Grain.}
+%   \end{subfigure}
+%   \caption{Task creation view -- 16 threads.}
+%   \label{fig:fine-paraver-compare}
+% \end{figure}
+
+\subsection{Strong Scalability}
+\label{sec:iter-fine-scalability}
+
+% TODO: Include speedup plot and compare with Iterative Tile.
+
+\todo[inline]{Insert the strong scalability plot for Fine Grain and compare with
+the Tile speedup curve. Discuss whether additional task granularity improves
+or hurts scalability at high thread counts.}
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.75\linewidth]{fotos/iter-fine-speedup.png}
+%   \caption{Strong scalability comparison: Iterative Tile vs.\ Fine Grain.}
+%   \label{fig:fine-speedup}
+% \end{figure}

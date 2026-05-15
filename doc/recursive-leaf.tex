@@ -1,0 +1,130 @@
+% ==================================================================
+\section{Recursive: Leaf Task Decomposition}
+\label{sec:rec-leaf}
+% ==================================================================
+
+\subsection{Implementation}
+\label{sec:rec-leaf-impl}
+
+The \textbf{leaf recursive} strategy implements the Mandelbrot computation through a
+divide-and-conquer quadtree recursion.
+Starting from the full $\mathit{ROWS}\times\mathit{COLS}$ matrix, each call to
+\texttt{mandel\_tiled\_rec} inspects the four borders of its sub-tile:
+
+\begin{itemize}
+    \item If all border pixels share the same iteration count (\texttt{equal = 1}),
+          the entire sub-tile is filled with that value via a \textbf{leaf task}.
+    \item If the sub-tile is at or below the minimum tile size (\texttt{NCols <= TILE}),
+          all interior pixels are computed individually via a \textbf{leaf task}.
+    \item Otherwise the sub-tile is split into four quadrants (or two halves when only
+          columns remain to be halved) and \texttt{mandel\_tiled\_rec} is called
+          recursively for each quadrant -- \emph{sequentially}, with no task at the
+          recursive call sites.
+\end{itemize}
+
+Tasks are therefore created only at the \emph{leaves} of the recursion tree.
+
+\begin{lstlisting}[caption={Key parallel section of \texttt{mandel-omp-rec(1).c} -- leaf tasks.},
+                   label={lst:rec-leaf}]
+#pragma omp parallel
+#pragma omp single
+mandel_tiled_rec(M, ROWS, COLS, 0, 0, ...);
+
+// Inside mandel_tiled_rec:
+void mandel_tiled_rec(int M[][COLS], int NRows, int NCols,
+                      int start_fil, int start_col, ...)
+{
+    int non_first_call = (NRows != ROWS) | (NCols != COLS);
+    int equal = non_first_call;
+    // ... compute borders, update equal ...
+
+    if (equal) {
+        // Leaf task: fill uniform sub-tile
+        #pragma omp task
+        {
+            for (int py = y; py < y + NRows; py++)
+                for (int px = x; px < x + NCols; px++) {
+                    M[py][px] = M[y][x];
+                    // display / histogram ...
+                }
+        }
+    } else if (NCols <= TILE) {
+        // Leaf task: compute smallest sub-tile
+        #pragma omp task firstprivate(y, x)
+        {
+            for (int py = y; py < y + NRows; py++)
+                for (int px = x; px < x + NCols; px++) {
+                    M[py][px] = pixel_dwell(...);
+                    // histogram / display ...
+                }
+        }
+    } else {
+        // Recurse into four quadrants (no task here -- leaf strategy)
+        if (NRows > TILE) {
+            mandel_tiled_rec(M, NRows/2, NCols/2, y,          x,          ...);
+            mandel_tiled_rec(M, NRows/2, NCols/2, y+NRows/2,  x,          ...);
+            mandel_tiled_rec(M, NRows/2, NCols/2, y,          x+NCols/2,  ...);
+            mandel_tiled_rec(M, NRows/2, NCols/2, y+NRows/2,  x+NCols/2,  ...);
+        } else {
+            mandel_tiled_rec(M, NRows,   NCols/2, y, x,          ...);
+            mandel_tiled_rec(M, NRows,   NCols/2, y, x+NCols/2,  ...);
+        }
+    }
+}
+\end{lstlisting}
+
+Because the recursive calls are sequential, only one thread walks the tree and generates
+leaf tasks; all other threads execute those tasks.
+Data races are avoided: each leaf task writes an exclusive region of \texttt{M}.
+Shared histogram updates use \texttt{\#pragma~omp~atomic}.
+
+\paragraph{Limitation.}
+With the leaf strategy, task creation is inherently \emph{serial} -- only the thread
+executing the single region can recurse and spawn.
+This means that at the start of execution, while the tree is being traversed, most
+threads remain idle waiting for tasks.
+The Improved Leaf version (Section~\ref{sec:rec-improved}) addresses this bottleneck.
+
+\subsection{Modelfactor Analysis}
+\label{sec:rec-leaf-mf}
+
+% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-rec  (leaf version)
+%       Paste Modelfactors tables for 16 threads and identify main issues.
+
+\todo[inline]{Insert Modelfactors table for Leaf Recursive (16 threads).
+Identify the main issues: expected large fraction of time in scheduling/synchronisation
+due to serial task generation.}
+
+\subsection{Paraver Analysis}
+\label{sec:rec-leaf-paraver}
+
+% TODO: Include the two Paraver views for 16 threads:
+%   - "Useful/Instantaneous parallelism"
+%   - "OpenMP tasking / explicit tasks function created and executed"
+
+\todo[inline]{Insert Paraver screenshots (16 threads) for Leaf Recursive and comment
+on the serial task-generation phase, the degree of parallelism achieved during
+leaf execution, and load balance.}
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=\linewidth]{fotos/rec-leaf-paraver.png}
+%   \caption{Paraver trace -- Recursive Leaf, 16 threads.}
+%   \label{fig:rec-leaf-paraver}
+% \end{figure}
+
+\subsection{Strong Scalability}
+\label{sec:rec-leaf-scalability}
+
+% TODO: Include speedup plot.
+
+\todo[inline]{Insert the strong scalability plot for Leaf Recursive and discuss the
+observed speedup.  Is it limited to less than 2$\times$ for more than 2 threads?
+Why?}
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.75\linewidth]{fotos/rec-leaf-speedup.png}
+%   \caption{Strong scalability of Recursive Leaf.}
+%   \label{fig:rec-leaf-speedup}
+% \end{figure}

@@ -1,0 +1,149 @@
+% ==================================================================
+\section{Recursive: Tree Task Decomposition}
+\label{sec:rec-tree}
+% ==================================================================
+
+\subsection{Implementation}
+\label{sec:rec-tree-impl}
+
+The \textbf{tree recursive} strategy removes the leaf restriction entirely: tasks are
+created at \emph{every} level of the recursion tree, not only at the leaves.
+Every recursive quadrant call becomes a task, so the task graph mirrors the full
+quadtree structure of the computation.
+
+In the implementation used here (\texttt{mandel-omp-rec(2).c}), the tree strategy
+shares the same depth-cutoff infrastructure as the Improved Leaf version.
+The crucial difference is that task creation at \emph{internal} nodes (the recursive
+calls) is enabled throughout the upper portion of the tree ($d < \mathtt{CUTOFF}$), and
+leaf tasks are also created in this region ($d \le \mathtt{CUTOFF}$).
+Below the cutoff depth, both recursive and leaf calls revert to inline execution to
+control total task count.
+
+\begin{lstlisting}[caption={Tree recursive version -- task creation at internal nodes.},
+                   label={lst:rec-tree}]
+#define CUTOFF 16
+
+void mandel_tiled_rec(int M[][COLS], int NRows, int NCols,
+                      int start_fil, int start_col, ..., int d)
+{
+    // ... border check (unchanged) ...
+
+    if (equal) {
+        if (d <= CUTOFF) {
+            #pragma omp task firstprivate(y, x, NRows, NCols)
+            { /* fill uniform sub-tile */ }
+        } else {
+            /* inline fill */
+        }
+    } else if (NCols <= TILE) {
+        if (d <= CUTOFF) {
+            #pragma omp task firstprivate(y, x, NRows, NCols)
+            { /* compute leaf sub-tile */ }
+        } else {
+            /* inline compute */
+        }
+    } else {
+        // Internal node: tasks for each quadrant (tree strategy)
+        #pragma omp taskgroup
+        {
+            if (NRows > TILE) {
+                if (d < CUTOFF) {
+                    // Four tasks -- parallel tree expansion
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil,         start_col,         ..., d+1);
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil+NRows/2, start_col,         ..., d+1);
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil,         start_col+NCols/2, ..., d+1);
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil+NRows/2, start_col+NCols/2, ..., d+1);
+                } else {
+                    // Sequential beyond cutoff
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil,         start_col,         ..., d+1);
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil+NRows/2, start_col,         ..., d+1);
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil,         start_col+NCols/2, ..., d+1);
+                    mandel_tiled_rec(M, NRows/2, NCols/2,
+                                     start_fil+NRows/2, start_col+NCols/2, ..., d+1);
+                }
+            } else {
+                /* Similar two-way split for column-only case */
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+The \texttt{\#pragma~omp~taskgroup} at each internal node enforces that all four
+child tasks (and their entire subtrees) complete before the enclosing task terminates,
+preserving the sequential semantics of the recursion.
+
+\paragraph{Comparison with Improved Leaf.}
+Both versions use the same cutoff mechanism; the only semantic difference is that the
+Tree version exposes quadrant-level parallelism from the very first recursion level
+($d = 0$), giving all threads work to do immediately.
+In contrast, the Improved Leaf version also does this (because it too uses tasks at
+internal nodes when $d < \mathtt{CUTOFF}$); the distinction lies in the definition of
+``leaf'': in the Tree version, \emph{every} node with children is an internal task node,
+whereas the Improved Leaf restricts task creation to a shallower region.
+In practice, with \texttt{CUTOFF = 16}, both versions create tasks up to the same depth.
+
+% NOTE: If your Tree implementation differs from Improved Leaf (e.g., no cutoff,
+%       tasks at ALL levels), describe that difference here.
+
+\subsection{Modelfactor Analysis}
+\label{sec:rec-tree-mf}
+
+% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-rec  (tree version)
+%       Paste Modelfactors tables and compare with Improved Leaf.
+
+\todo[inline]{Insert Modelfactors table for Tree Recursive (16 threads) and compare with
+Improved Leaf.  Does the extra task creation at internal nodes improve useful computation
+or increase overhead?}
+
+\subsection{Paraver Analysis}
+\label{sec:rec-tree-paraver}
+
+% TODO: Include Paraver views (16 threads) and compare with Improved Leaf.
+%   - Does the task creation pattern look different from Improved Leaf?
+%   - Is there less idle time at the beginning of execution?
+
+\todo[inline]{Insert Paraver screenshots (16 threads) for Tree Recursive and compare
+with the Improved Leaf trace.  Comment on task density, load balance, and any
+synchronisation gaps introduced by the \texttt{taskgroup} barriers.}
+
+% \begin{figure}[H]
+%   \centering
+%   \begin{subfigure}[b]{0.48\linewidth}
+%     \includegraphics[width=\linewidth]{fotos/rec-improved-paraver-tasks.png}
+%     \caption{Improved Leaf.}
+%   \end{subfigure}
+%   \hfill
+%   \begin{subfigure}[b]{0.48\linewidth}
+%     \includegraphics[width=\linewidth]{fotos/rec-tree-paraver-tasks.png}
+%     \caption{Tree Recursive.}
+%   \end{subfigure}
+%   \caption{Task creation view -- 16 threads.}
+%   \label{fig:tree-paraver-compare}
+% \end{figure}
+
+\subsection{Strong Scalability}
+\label{sec:rec-tree-scalability}
+
+% TODO: Include speedup plot compared with Improved Leaf.
+
+\todo[inline]{Insert the strong scalability plot for Tree Recursive and compare with
+Improved Leaf.  Identify which version achieves better scalability and explain why.}
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.75\linewidth]{fotos/rec-tree-speedup.png}
+%   \caption{Strong scalability: Improved Leaf vs.\ Tree Recursive.}
+%   \label{fig:tree-speedup}
+% \end{figure}

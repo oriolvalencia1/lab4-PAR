@@ -1,0 +1,116 @@
+% ==================================================================
+\section{Iterative: Tile Task Decomposition}
+\label{sec:iter-tile}
+% ==================================================================
+
+\subsection{Implementation}
+\label{sec:iter-tile-impl}
+
+The \textbf{original tile iterative} strategy maps the $\mathit{ROWS}\times\mathit{COLS}$ image
+onto a grid of square tiles of size $\mathit{TILE}\times\mathit{TILE}$ pixels.
+The outer double loop iterates over tile origins with stride \texttt{TILE}; each iteration
+body is wrapped in a single \texttt{\#pragma~omp~task}, so all tiles are eligible for
+parallel execution.
+The task takes \texttt{x} and \texttt{y} as \texttt{firstprivate} to avoid the data-race
+that would arise if the loop variables were shared across concurrently executing tasks.
+
+The parallel region is opened with \texttt{\#pragma~omp~parallel} followed immediately by
+\texttt{\#pragma~omp~single}, so only one thread generates the tasks while all others
+are available to execute them.
+
+\begin{lstlisting}[caption={Key parallel section of \texttt{mandel-omp-iter.c} (Tile strategy).},
+                   label={lst:iter-tile}]
+#pragma omp parallel
+#pragma omp single
+for (int y = 0; y < ROWS; y += TILE)
+    for (int x = 0; x < COLS; x += TILE) {
+        #pragma omp task firstprivate(x, y)
+        {
+            int equal = 1;
+            // --- Check vertical TILE borders ---
+            int ref = pixel_dwell(..., x, y, ...);
+            for (int py = y; py < y + TILE; py++) {
+                M[py][x]          = pixel_dwell(..., x,          py, ...);
+                M[py][x+TILE-1]   = pixel_dwell(..., x+TILE-1,  py, ...);
+                equal &= (ref == M[py][x]);
+                equal &= (ref == M[py][x+TILE-1]);
+            }
+            // --- Check horizontal TILE borders ---
+            for (int px = x; px < x + TILE; px++) {
+                M[y][px]          = pixel_dwell(..., px, y,         ...);
+                M[y+TILE-1][px]   = pixel_dwell(..., px, y+TILE-1, ...);
+                equal &= (ref == M[y][px]);
+                equal &= (ref == M[y+TILE-1][px]);
+            }
+            if (equal) {
+                fill_tile(M, y, x, TILE, M[y][x]);   // uniform colour
+            } else {
+                compute_tile(M, y, x, TILE, ...);     // full computation
+            }
+        }
+    }
+\end{lstlisting}
+
+Dependencies and data-sharing between tasks are avoided by construction: each task writes
+only to the memory region $[y,\,y+\mathit{TILE})\times[x,\,x+\mathit{TILE})$, which is
+disjoint from every other task's region.
+Histogram updates use \texttt{\#pragma~omp~atomic} to protect the shared counter array.
+
+\subsection{Modelfactor Analysis}
+\label{sec:iter-tile-mf}
+
+% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-iter
+%       and paste the Modelfactors tables here.
+
+\todo[inline]{Insert Modelfactors table for \texttt{mandel-omp-iter} (16 threads) and
+identify the main bottlenecks (e.g.\ scheduling overhead, load imbalance, synchronisation).}
+
+% Example skeleton (replace values with real data):
+% \begin{table}[H]
+% \centering
+% \caption{Modelfactors for Iterative Tile with 16 threads.}
+% \begin{tabular}{lr}
+% \toprule
+% Factor & Value \\
+% \midrule
+% Useful computation & \% \\
+% Task scheduling overhead & \% \\
+% Synchronisation & \% \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+%
+% Main issues observed:
+% - ...
+
+\subsection{Paraver Analysis}
+\label{sec:iter-tile-paraver}
+
+% TODO: Open the Paraver trace generated for 16 threads and include:
+%   1. The "Useful/Instantaneous parallelism" view.
+%   2. The "OpenMP tasking / explicit tasks function created and executed" view.
+
+\todo[inline]{Insert Paraver screenshots (16 threads) and comment on the task creation
+pattern, load distribution, and any visible idle periods.}
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=\linewidth]{fotos/iter-tile-paraver-parallelism.png}
+%   \caption{Useful/Instantaneous parallelism -- Iterative Tile, 16 threads.}
+%   \label{fig:iter-tile-paraver}
+% \end{figure}
+
+\subsection{Strong Scalability}
+\label{sec:iter-tile-scalability}
+
+% TODO: Run  sbatch submit-strong-omp.sh  and include the speedup plot.
+
+\todo[inline]{Insert the strong scalability (speedup vs.\ number of threads) plot for
+\texttt{mandel-omp-iter} and explain the observed trend.}
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.75\linewidth]{fotos/iter-tile-speedup.png}
+%   \caption{Strong scalability of Iterative Tile.}
+%   \label{fig:iter-tile-speedup}
+% \end{figure}

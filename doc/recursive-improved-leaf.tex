@@ -1,0 +1,146 @@
+% ==================================================================
+\section{Recursive: Improved Leaf Task Decomposition}
+\label{sec:rec-improved}
+% ==================================================================
+
+\subsection{Implementation}
+\label{sec:rec-improved-impl}
+
+The \textbf{improved leaf} version addresses the main bottleneck of the plain leaf
+strategy: serial task generation.
+In the leaf version, the entire recursion is driven by a single thread, so threads
+sit idle until enough leaf tasks have accumulated.
+The improvement introduces a \emph{depth cutoff} parameter \texttt{d} (initialised to
+\texttt{0} at the top-level call) and a compile-time constant \texttt{CUTOFF}.
+
+\begin{itemize}
+    \item When the current recursion depth satisfies $\mathtt{d} < \mathtt{CUTOFF}$,
+          each recursive quadrant call is wrapped in a \texttt{\#pragma~omp~task},
+          allowing multiple threads to explore different branches of the recursion tree
+          \emph{concurrently}.
+    \item When $\mathtt{d} \ge \mathtt{CUTOFF}$, the recursive calls are sequential
+          again, cutting off task proliferation at deep levels where the overhead would
+          dominate.
+    \item Leaf tasks (fill or compute) are only spawned when $\mathtt{d} \le
+          \mathtt{CUTOFF}$; beyond the cutoff they run inline to avoid the overhead of
+          tiny tasks.
+\end{itemize}
+
+The value \texttt{CUTOFF = 16} was chosen empirically so that the number of tasks at
+the cutoff level matches or exceeds the number of available threads.
+
+\begin{lstlisting}[caption={Key changes in the Improved Leaf version (depth-cutoff mechanism).},
+                   label={lst:rec-improved}]
+#define CUTOFF 16
+
+void mandel_tiled_rec(int M[][COLS], int NRows, int NCols,
+                      int start_fil, int start_col, ..., int d)
+{
+    // ... border check, equal computation (unchanged) ...
+
+    if (equal) {
+        if (d <= CUTOFF) {
+            #pragma omp task firstprivate(y, x, NRows, NCols)
+            { /* fill uniform sub-tile */ }
+        } else {
+            /* fill inline -- avoid task overhead at deep levels */
+        }
+    } else if (NCols <= TILE) {
+        if (d <= CUTOFF) {
+            #pragma omp task firstprivate(y, x, NRows, NCols)
+            { /* compute leaf sub-tile */ }
+        } else {
+            /* compute inline */
+        }
+    } else {
+        #pragma omp taskgroup
+        {
+            if (NRows > TILE) {
+                if (d < CUTOFF) {
+                    /* tasks for all four quadrants */
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col,         ..., d+1);
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col,         ..., d+1);
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col+NCols/2, ..., d+1);
+                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col+NCols/2, ..., d+1);
+                } else {
+                    /* sequential -- beyond cutoff */
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col,         ..., d+1);
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col,         ..., d+1);
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col+NCols/2, ..., d+1);
+                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col+NCols/2, ..., d+1);
+                }
+            } else {
+                /* similar for column-only split */
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+The \texttt{\#pragma~omp~taskgroup} ensures that all four quadrant tasks (and their
+descendants) finish before control returns to the caller, preserving the border-read
+correctness that the leaf version relies on.
+
+\paragraph{Improvements over plain Leaf.}
+\begin{itemize}
+    \item Multiple threads now explore the recursion tree in parallel down to depth
+          \texttt{CUTOFF}, eliminating the serial task-generation bottleneck.
+    \item Tasks beyond \texttt{CUTOFF} run sequentially, avoiding excessive fine-grained
+          task overhead at the bottom of the tree.
+    \item The result is speedups larger than $2\times$ for more than 2 threads.
+\end{itemize}
+
+\subsection{Modelfactor Analysis}
+\label{sec:rec-improved-mf}
+
+% TODO: Run Modelfactors for the improved leaf version and compare with the plain leaf.
+
+\todo[inline]{Insert Modelfactors table for Improved Leaf (16 threads).
+Compare with the plain Leaf table (Section~\ref{sec:rec-leaf-mf}): has the useful
+computation fraction increased?  Has scheduling overhead decreased?}
+
+\subsection{Paraver Analysis}
+\label{sec:rec-improved-paraver}
+
+% TODO: Include Paraver views for 16 threads.
+%   Compare with the plain Leaf trace:
+%   - Is the initial serial phase shorter or eliminated?
+%   - Is load balance better?
+
+\todo[inline]{Insert Paraver screenshots (16 threads) for Improved Leaf.
+Include both the non-improved and the improved traces for direct comparison.}
+
+% \begin{figure}[H]
+%   \centering
+%   \begin{subfigure}[b]{0.48\linewidth}
+%     \includegraphics[width=\linewidth]{fotos/rec-leaf-paraver-parallelism.png}
+%     \caption{Plain Leaf -- parallelism view.}
+%   \end{subfigure}
+%   \hfill
+%   \begin{subfigure}[b]{0.48\linewidth}
+%     \includegraphics[width=\linewidth]{fotos/rec-improved-paraver-parallelism.png}
+%     \caption{Improved Leaf -- parallelism view.}
+%   \end{subfigure}
+%   \caption{Paraver parallelism comparison, 16 threads.}
+%   \label{fig:improved-paraver}
+% \end{figure}
+
+\subsection{Strong Scalability}
+\label{sec:rec-improved-scalability}
+
+% TODO: Include speedup plot for improved leaf, compared with plain leaf.
+
+\todo[inline]{Insert the strong scalability plot for Improved Leaf and compare with
+plain Leaf.  Confirm that speedups larger than $2\times$ are achieved for more than
+2 threads.}
+
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.75\linewidth]{fotos/rec-improved-speedup.png}
+%   \caption{Strong scalability: Recursive Leaf vs.\ Improved Leaf.}
+%   \label{fig:improved-speedup}
+% \end{figure}
