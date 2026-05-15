@@ -88,43 +88,58 @@ The Improved Leaf version (Section~\ref{sec:rec-improved}) addresses this bottle
 \subsection{Modelfactor Analysis}
 \label{sec:rec-leaf-mf}
 
-% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-rec  (leaf version)
-%       Paste Modelfactors tables for 16 threads and identify main issues.
+% Modelfactors tables (three model factors)
+% Mostrar las tres tablas de modelfactor verticalmente, cada una más grande
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/primera_tabla_leaf.png}
+    \caption{Model factor 1 (Leaf).}
+    \label{fig:rec-leaf-mf1}
+\end{figure}
 
-\todo[inline]{Insert Modelfactors table for Leaf Recursive (16 threads).
-Identify the main issues: expected large fraction of time in scheduling/synchronisation
-due to serial task generation.}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/segunda_tabla_leaf.png}
+    \caption{Model factor 2 (Leaf).}
+    \label{fig:rec-leaf-mf2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/tercera_tabla_leaf.png}
+    \caption{Model factor 3 (Leaf).}
+    \label{fig:rec-leaf-mf3}
+\end{figure}
+A la primera de les taules podem veure diversos aspectes que ens reflecteixen que no serà una implementació "molt bona". Veiem que l'Elapsed time, no baixa a partir de l'execució amb 2 threads amb un valor de 1.41 s, i que el Speedup no millora a partir de 2 threads, mantenint-se al voltant de 1.3. Això es veu reflectit en una eficiència molt baixa.\\
+Això es deu a què el coll d'ampolla en aquest cas és la creació de tasques, que es fa de manera serial, i això provoca que la resta de threads estiguin inactius durant aquest procés. Per tant una execució amb 2 threads ja és suficient per mantenir ocupat el thread que crea les tasques i un altre que les executa, i afegir més threads no aporta cap millora.
+Veiem a la taula 2 que el load balancing no es bo. Amb 2 threads és de 65\% i cau fins al 4.15\%, reduint-se a la meitar al duplicar el nombre de threads. Això es deu a la desigualtat en la creació de tasques, i a què hi ha tasques que tenen més cost que d'altres, els tiles de l'interior, i això provoca desequilibris.\\
+De la tercera taula es destaca el nombre de tasques executades, que és 3013. Es compararà amb el nombre de tasques creat en altres apartats.
 
 \subsection{Paraver Analysis}
 \label{sec:rec-leaf-paraver}
 
-% TODO: Include the two Paraver views for 16 threads:
-%   - "Useful/Instantaneous parallelism"
-%   - "OpenMP tasking / explicit tasks function created and executed"
+% Paraver trace (useful/instantaneous parallelism and task creation view)
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/paraver_leaf.png}
+    \caption{Paraver trace for Recursive Leaf (16 threads): task creation and useful parallelism.}
+    \label{fig:rec-leaf-paraver}
+\end{figure}
 
-\todo[inline]{Insert Paraver screenshots (16 threads) for Leaf Recursive and comment
-on the serial task-generation phase, the degree of parallelism achieved during
-leaf execution, and load balance.}
-
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=\linewidth]{fotos/rec-leaf-paraver.png}
-%   \caption{Paraver trace -- Recursive Leaf, 16 threads.}
-%   \label{fig:rec-leaf-paraver}
-% \end{figure}
+A les traces obtingudes de Paraver, es pot observar, d'una banda, que la creació de tasques es fa únicament en un fil, i que la resta de fils es mantenen inactius fins que aquestes tasques es creen i s'assignen. Això es concorde amb l'anàlisi fet a la pràctica 3, on es va observar un desequilibri de càrrega entre la creació de tasques i la seva execució.
+Podem veure però, que a l'hora de l'execució de les tasques, els 16 threads es mantenen actius, el que indica que la paralelització a nivell de tasques és efectiva un cop les tasques han estat creades.
+A la tercera traça, es reflexa que el pararelisme és molt irregular, amb períodes de paralelisme útils seguits de períodes d'inactivitat. Això es deu a què, d'una banda a l'estratègia leaf no es creen totes les tasques a l'hora, i hi ha moments on no hi ha tasques disponibles per executar. D'altra banda, hi ha tasques que tenen més cost que d'altres, els tiles de l'interior, i això també provoca desequilibris.
+Tot això reflexa la baixa eficiència del model de tasques en aquesta implementació, ja que 15 dels 16 threads estan inactius durant la creació de tasques i només es mantenen ocupats una vegada que les tasques han estat creades, i ho fan de manera irregular.
 
 \subsection{Strong Scalability}
 \label{sec:rec-leaf-scalability}
 
-% TODO: Include speedup plot.
+% Strong scalability plot
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{fotosL4/grafico_leaf.png}
+    \caption{Strong scalability (elapsed time vs. threads) for the Recursive Leaf implementation.}
+    \label{fig:rec-leaf-speedup}
+\end{figure}
 
-\todo[inline]{Insert the strong scalability plot for Leaf Recursive and discuss the
-observed speedup.  Is it limited to less than 2$\times$ for more than 2 threads?
-Why?}
-
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=0.75\linewidth]{fotos/rec-leaf-speedup.png}
-%   \caption{Strong scalability of Recursive Leaf.}
-%   \label{fig:rec-leaf-speedup}
-% \end{figure}
+De la figura prèvia en podem analitzar que l'increment de l'SpeedUp en relació al nombre de threads és nul, com ja haviem vist amb les taules modelfactor. Si que hi ha un increment de l'SpeedUp quan es passa de 1 a 2 threads, però a partir d'aquí no hi ha cap millora, mantenint-se al voltant de 1.3.\\

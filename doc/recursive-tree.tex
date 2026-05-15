@@ -100,50 +100,47 @@ In practice, with \texttt{CUTOFF = 16}, both versions create tasks up to the sam
 \subsection{Modelfactor Analysis}
 \label{sec:rec-tree-mf}
 
-% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-rec  (tree version)
-%       Paste Modelfactors tables and compare with Improved Leaf.
+% Modelfactors tables (three model factors)
+% Mostrar las tres tablas de modelfactor verticalmente, cada una más grande
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/primera_tabla_tree.png}
+    \caption{Model factor 1 (Tree).}
+    \label{fig:rec-tree-mf1}
+\end{figure}
 
-\todo[inline]{Insert Modelfactors table for Tree Recursive (16 threads) and compare with
-Improved Leaf.  Does the extra task creation at internal nodes improve useful computation
-or increase overhead?}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/segunda_tabla_tree.png}
+    \caption{Model factor 2 (Tree).}
+    \label{fig:rec-tree-mf2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/tercera_tabla_tree.png}
+    \caption{Model factor 3 (Tree).}
+    \label{fig:rec-tree-mf3}
+\end{figure}
 
 \subsection{Paraver Analysis}
 \label{sec:rec-tree-paraver}
 
-% TODO: Include Paraver views (16 threads) and compare with Improved Leaf.
-%   - Does the task creation pattern look different from Improved Leaf?
-%   - Is there less idle time at the beginning of execution?
-
-\todo[inline]{Insert Paraver screenshots (16 threads) for Tree Recursive and compare
-with the Improved Leaf trace.  Comment on task density, load balance, and any
-synchronisation gaps introduced by the \texttt{taskgroup} barriers.}
-
-% \begin{figure}[H]
-%   \centering
-%   \begin{subfigure}[b]{0.48\linewidth}
-%     \includegraphics[width=\linewidth]{fotos/rec-improved-paraver-tasks.png}
-%     \caption{Improved Leaf.}
-%   \end{subfigure}
-%   \hfill
-%   \begin{subfigure}[b]{0.48\linewidth}
-%     \includegraphics[width=\linewidth]{fotos/rec-tree-paraver-tasks.png}
-%     \caption{Tree Recursive.}
-%   \end{subfigure}
-%   \caption{Task creation view -- 16 threads.}
-%   \label{fig:tree-paraver-compare}
-% \end{figure}
+% Paraver trace (task creation / useful parallelism)
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/paraver_tree.png}
+    \caption{Paraver trace for Recursive Tree (16 threads): task density and execution.}
+    \label{fig:rec-tree-paraver}
+\end{figure}
 
 \subsection{Strong Scalability}
 \label{sec:rec-tree-scalability}
 
-% TODO: Include speedup plot compared with Improved Leaf.
-
-\todo[inline]{Insert the strong scalability plot for Tree Recursive and compare with
-Improved Leaf.  Identify which version achieves better scalability and explain why.}
-
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=0.75\linewidth]{fotos/rec-tree-speedup.png}
-%   \caption{Strong scalability: Improved Leaf vs.\ Tree Recursive.}
-%   \label{fig:tree-speedup}
-% \end{figure}
+% Strong scalability plot
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{fotosL4/grafico_tree.png}
+    \caption{Strong scalability (elapsed time vs. threads) for the Recursive Tree implementation.}
+    \label{fig:rec-tree-speedup}
+\end{figure}
