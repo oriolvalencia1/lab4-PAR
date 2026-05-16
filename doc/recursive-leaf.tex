@@ -5,79 +5,92 @@
 
 \subsection{Implementation}
 \label{sec:rec-leaf-impl}
+El codi de la versió \textbf{leaf recursive} es troba a \texttt{mandel-omp-leaf.c}.\\
+El primer que analitzarem és que la regió paral·lela es crea al main, abans de la crida a \texttt{mandel\_tiled\_rec}, declarant la regió com a \texttt{single}. Això provocarà que un únic thread crei les tasques i faci el recorregut recursiu (és com funciona l'estratègia \textbf{leaf}).
 
-The \textbf{leaf recursive} strategy implements the Mandelbrot computation through a
-divide-and-conquer quadtree recursion.
-Starting from the full $\mathit{ROWS}\times\mathit{COLS}$ matrix, each call to
-\texttt{mandel\_tiled\_rec} inspects the four borders of its sub-tile:
+\begin{lstlisting}[caption={Regió paral·lela i crida inicial al \texttt{main}.},label={lst:rec-leaf-main}]
+#pragma omp parallel
+#pragma omp single
+mandel_tiled_rec((int (*)[width])Hmatrix, height, width, 0, 0,
+             real_min, imag_min, real_max, imag_max,
+             scale_real, scale_imag, maxiter);
+\end{lstlisting}
 
+Posteriorment, veiem que només es creen tasques a les fulles de l'arbre de recursió, en dos casos. O bé quan \texttt{equal} és cert, és a dir, les boreres del tile són iguals i es pot omplir el tile amb un valor uniforme, o bé quan el nombre de columnes és menor o igual que la mida del tile, cosa que indica que s'ha arribat a un tile prou petit perquè es calculi directament. En ambdós casos es crea una tasca per dur a terme l'operació corresponent. Vegeu-ho al propi codi, no s'adjunta perquè cada cas base ocupa moltes línies.\\
+Si no es compleix cap de les condicions anteriors, la recursió es fa als quatre quadrants del tile (o a les dues meitats de columnes), però sense crear tasques per a aquestes crides recursives, cosa característica de l'estratègia \textbf{leaf}.\\
+Cal destacar també que s'han evitat els problemes de compartició de dades en els accessos a l'histograma i a la biblioteca X detectats a la pràctica 3, de la manera següent:
 \begin{itemize}
-    \item If all border pixels share the same iteration count (\texttt{equal = 1}),
-          the entire sub-tile is filled with that value via a \textbf{leaf task}.
-    \item If the sub-tile is at or below the minimum tile size (\texttt{NCols <= TILE}),
-          all interior pixels are computed individually via a \textbf{leaf task}.
-    \item Otherwise the sub-tile is split into four quadrants (or two halves when only
-          columns remain to be halved) and \texttt{mandel\_tiled\_rec} is called
-          recursively for each quadrant -- \emph{sequentially}, with no task at the
-          recursive call sites.
+    \item Per l'accès a histograma, s'ha utilitzat \texttt{\#pragma omp atomic}:
+    \begin{lstlisting}[language=C]
+#pragma omp atomic
+histogram[M[y][x] - 1] += (NRows * NCols);
+    \end{lstlisting}
+
+    \item Per l'accès a la librería X, las instruccions s'han protegit amb \texttt{\#pragma omp critical}:
+    \begin{lstlisting}[language=C]
+#pragma omp critical
+{
+    XSetForeground(display, gc, color);
+    XDrawPoint(display, win, gc, px, py);
+}
+    \end{lstlisting}
 \end{itemize}
-
-Tasks are therefore created only at the \emph{leaves} of the recursion tree.
-
-The complete implementation (leaf tasks for fill and compute, sequential recursion at internal nodes) is in \texttt{codis/mandel-omp-rec(1).c}.
-
-Because the recursive calls are sequential, only one thread walks the tree and generates
-leaf tasks; all other threads execute those tasks.
-Data races are avoided: each leaf task writes an exclusive region of \texttt{M}.
-Shared histogram updates use \texttt{\#pragma~omp~atomic}.
-
-\paragraph{Limitation.}
-With the leaf strategy, task creation is inherently \emph{serial} -- only the thread
-executing the single region can recurse and spawn.
-This means that at the start of execution, while the tree is being traversed, most
-threads remain idle waiting for tasks.
-The Improved Leaf version (Section~\ref{sec:rec-improved}) addresses this bottleneck.
 
 \subsection{Modelfactor Analysis}
 \label{sec:rec-leaf-mf}
 
-% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-rec  (leaf version)
-%       Paste Modelfactors tables for 16 threads and identify main issues.
+% Modelfactors tables (three model factors)
+% Mostrar las tres tablas de modelfactor verticalmente, cada una más grande
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/primera_tabla_leaf.png}
+    \caption{Model factor 1 (Leaf).}
+    \label{fig:rec-leaf-mf1}
+\end{figure}
 
-\todo[inline]{Insert Modelfactors table for Leaf Recursive (16 threads).
-Identify the main issues: expected large fraction of time in scheduling/synchronisation
-due to serial task generation.}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/segunda_tabla_leaf.png}
+    \caption{Model factor 2 (Leaf).}
+    \label{fig:rec-leaf-mf2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/tercera_tabla_leaf.png}
+    \caption{Model factor 3 (Leaf).}
+    \label{fig:rec-leaf-mf3}
+\end{figure}
+A la primera de les taules podem veure diversos aspectes que ens reflecteixen que no serà una implementació "molt bona". Veiem que l'Elapsed time, no baixa a partir de l'execució amb 2 threads amb un valor de 1.41 s, i que el Speedup no millora a partir de 2 threads, mantenint-se al voltant de 1.3. Això es veu reflectit en una eficiència molt baixa.\\
+Això es deu a què el coll d'ampolla en aquest cas és la creació de tasques, que es fa de manera serial, i això provoca que la resta de threads estiguin inactius durant aquest procés. Per tant una execució amb 2 threads ja és suficient per mantenir ocupat el thread que crea les tasques i un altre que les executa, i afegir més threads no aporta cap millora.
+Veiem a la taula 2 que el load balancing no es bo. Amb 2 threads és de 65\% i cau fins al 4.15\%, reduint-se a la meitar al duplicar el nombre de threads. Això es deu a la desigualtat en la creació de tasques, i a què hi ha tasques que tenen més cost que d'altres, els tiles de l'interior, i això provoca desequilibris.\\
+De la tercera taula es destaca el nombre de tasques executades, que és 3013. Es compararà amb el nombre de tasques creat en altres apartats.
 
 \subsection{Paraver Analysis}
 \label{sec:rec-leaf-paraver}
 
-% TODO: Include the two Paraver views for 16 threads:
-%   - "Useful/Instantaneous parallelism"
-%   - "OpenMP tasking / explicit tasks function created and executed"
+% Paraver trace (useful/instantaneous parallelism and task creation view)
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fotosL4/paraver_leaf.png}
+    \caption{Paraver trace for Recursive Leaf (16 threads): task creation and useful parallelism.}
+    \label{fig:rec-leaf-paraver}
+\end{figure}
 
-\todo[inline]{Insert Paraver screenshots (16 threads) for Leaf Recursive and comment
-on the serial task-generation phase, the degree of parallelism achieved during
-leaf execution, and load balance.}
-
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=\linewidth]{fotos/rec-leaf-paraver.png}
-%   \caption{Paraver trace -- Recursive Leaf, 16 threads.}
-%   \label{fig:rec-leaf-paraver}
-% \end{figure}
+A les traces obtingudes de Paraver, es pot observar, d'una banda, que la creació de tasques es fa únicament en un fil, i que la resta de fils es mantenen inactius fins que aquestes tasques es creen i s'assignen. Això es concorde amb l'anàlisi fet a la pràctica 3, on es va observar un desequilibri de càrrega entre la creació de tasques i la seva execució.
+Podem veure però, que a l'hora de l'execució de les tasques, els 16 threads es mantenen actius, el que indica que la paralelització a nivell de tasques és efectiva un cop les tasques han estat creades.
+A la tercera traça, es reflexa que el pararelisme és molt irregular, amb períodes de paralelisme útils seguits de períodes d'inactivitat. Això es deu a què, d'una banda a l'estratègia leaf no es creen totes les tasques a l'hora, i hi ha moments on no hi ha tasques disponibles per executar. D'altra banda, hi ha tasques que tenen més cost que d'altres, els tiles de l'interior, i això també provoca desequilibris.
+Tot això reflexa la baixa eficiència del model de tasques en aquesta implementació, ja que 15 dels 16 threads estan inactius durant la creació de tasques i només es mantenen ocupats una vegada que les tasques han estat creades, i ho fan de manera irregular.
 
 \subsection{Strong Scalability}
 \label{sec:rec-leaf-scalability}
 
-% TODO: Include speedup plot.
+% Strong scalability plot
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{fotosL4/grafico_leaf.png}
+    \caption{Strong scalability (elapsed time vs. threads) for the Recursive Leaf implementation.}
+    \label{fig:rec-leaf-speedup}
+\end{figure}
 
-\todo[inline]{Insert the strong scalability plot for Leaf Recursive and discuss the
-observed speedup.  Is it limited to less than 2$\times$ for more than 2 threads?
-Why?}
-
-% \begin{figure}[H]
-%   \centering
-%   \includegraphics[width=0.75\linewidth]{fotos/rec-leaf-speedup.png}
-%   \caption{Strong scalability of Recursive Leaf.}
-%   \label{fig:rec-leaf-speedup}
-% \end{figure}
+De la figura prèvia en podem analitzar que l'increment de l'SpeedUp en relació al nombre de threads és nul, com ja haviem vist amb les taules modelfactor. Si que hi ha un increment de l'SpeedUp quan es passa de 1 a 2 threads, però a partir d'aquí no hi ha cap millora, mantenint-se al voltant de 1.3.\\
