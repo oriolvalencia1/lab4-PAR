@@ -24,54 +24,7 @@ Starting from the full $\mathit{ROWS}\times\mathit{COLS}$ matrix, each call to
 
 Tasks are therefore created only at the \emph{leaves} of the recursion tree.
 
-\begin{lstlisting}[caption={Key parallel section of \texttt{mandel-omp-rec(1).c} -- leaf tasks.},
-                   label={lst:rec-leaf}]
-#pragma omp parallel
-#pragma omp single
-mandel_tiled_rec(M, ROWS, COLS, 0, 0, ...);
-
-// Inside mandel_tiled_rec:
-void mandel_tiled_rec(int M[][COLS], int NRows, int NCols,
-                      int start_fil, int start_col, ...)
-{
-    int non_first_call = (NRows != ROWS) | (NCols != COLS);
-    int equal = non_first_call;
-    // ... compute borders, update equal ...
-
-    if (equal) {
-        // Leaf task: fill uniform sub-tile
-        #pragma omp task
-        {
-            for (int py = y; py < y + NRows; py++)
-                for (int px = x; px < x + NCols; px++) {
-                    M[py][px] = M[y][x];
-                    // display / histogram ...
-                }
-        }
-    } else if (NCols <= TILE) {
-        // Leaf task: compute smallest sub-tile
-        #pragma omp task firstprivate(y, x)
-        {
-            for (int py = y; py < y + NRows; py++)
-                for (int px = x; px < x + NCols; px++) {
-                    M[py][px] = pixel_dwell(...);
-                    // histogram / display ...
-                }
-        }
-    } else {
-        // Recurse into four quadrants (no task here -- leaf strategy)
-        if (NRows > TILE) {
-            mandel_tiled_rec(M, NRows/2, NCols/2, y,          x,          ...);
-            mandel_tiled_rec(M, NRows/2, NCols/2, y+NRows/2,  x,          ...);
-            mandel_tiled_rec(M, NRows/2, NCols/2, y,          x+NCols/2,  ...);
-            mandel_tiled_rec(M, NRows/2, NCols/2, y+NRows/2,  x+NCols/2,  ...);
-        } else {
-            mandel_tiled_rec(M, NRows,   NCols/2, y, x,          ...);
-            mandel_tiled_rec(M, NRows,   NCols/2, y, x+NCols/2,  ...);
-        }
-    }
-}
-\end{lstlisting}
+The complete implementation (leaf tasks for fill and compute, sequential recursion at internal nodes) is in \texttt{codis/mandel-omp-rec(1).c}.
 
 Because the recursive calls are sequential, only one thread walks the tree and generates
 leaf tasks; all other threads execute those tasks.

@@ -12,39 +12,41 @@
 \newlabel{sec:iter-tile}{{1.1}{2}{Iterative: Tile Task Decomposition}{section.1.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.1.1}Implementation}{2}{subsection.1.1.1}\protected@file@percent }
 \newlabel{sec:iter-tile-impl}{{1.1.1}{2}{Implementation}{subsection.1.1.1}{}}
-\newlabel{lst:iter-tile}{{1.1}{2}{Key parallel section of \texttt {mandel-omp-iter.c} (Tile strategy)}{lstlisting.1.1}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1.1}{\ignorespaces Key parallel section of \texttt  {mandel-omp-iter.c} (Tile strategy).}}{2}{lstlisting.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.2}Modelfactor Analysis}{3}{subsection.1.1.2}\protected@file@percent }
-\newlabel{sec:iter-tile-mf}{{1.1.2}{3}{Modelfactor Analysis}{subsection.1.1.2}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for \texttt  {mandel-omp-iter} (16 threads) and identify the main bottlenecks (e.g.\ scheduling overhead, load imbalance, synchronisation).}{3}{section*.2}\protected@file@percent }
-\pgfsyspdfmark {pgfid1}{19562754}{36034909}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.3}Paraver Analysis}{3}{subsection.1.1.3}\protected@file@percent }
-\newlabel{sec:iter-tile-paraver}{{1.1.3}{3}{Paraver Analysis}{subsection.1.1.3}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) and comment on the task creation pattern, load distribution, and any visible idle periods.}{3}{section*.3}\protected@file@percent }
-\pgfsyspdfmark {pgfid2}{19562754}{30709226}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.4}Strong Scalability}{3}{subsection.1.1.4}\protected@file@percent }
-\newlabel{sec:iter-tile-scalability}{{1.1.4}{3}{Strong Scalability}{subsection.1.1.4}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability (speedup vs.\ number of threads) plot for \texttt  {mandel-omp-iter} and explain the observed trend.}{3}{section*.4}\protected@file@percent }
-\pgfsyspdfmark {pgfid3}{19562754}{25394463}
-\@writefile{toc}{\contentsline {section}{\numberline {1.2}Iterative: Fine Grain Task Decomposition}{4}{section.1.2}\protected@file@percent }
-\newlabel{sec:iter-fine}{{1.2}{4}{Iterative: Fine Grain Task Decomposition}{section.1.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2.1}Implementation}{4}{subsection.1.2.1}\protected@file@percent }
-\newlabel{sec:iter-fine-impl}{{1.2.1}{4}{Implementation}{subsection.1.2.1}{}}
-\newlabel{lst:fine-grain}{{1.2}{4}{Key parallel section of \texttt {fine-grain.c} -- inner tasks for each tile}{lstlisting.1.2}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1.2}{\ignorespaces Key parallel section of \texttt  {fine-grain.c} -- inner tasks for each tile.}}{4}{lstlisting.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Comparison with Iterative Tile.}{5}{section*.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2.2}Modelfactor Analysis}{5}{subsection.1.2.2}\protected@file@percent }
-\newlabel{sec:iter-fine-mf}{{1.2.2}{5}{Modelfactor Analysis}{subsection.1.2.2}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for \texttt  {fine-grain} (16 threads). Compare with Iterative Tile: does finer granularity improve useful parallelism or does scheduling overhead dominate?}{5}{section*.6}\protected@file@percent }
-\pgfsyspdfmark {pgfid4}{19562754}{18796455}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2.3}Paraver Analysis}{5}{subsection.1.2.3}\protected@file@percent }
-\newlabel{sec:iter-fine-paraver}{{1.2.3}{5}{Paraver Analysis}{subsection.1.2.3}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Fine Grain and compare with the Tile trace. Comment on whether the extra tasks reduce idle time or introduce additional overhead.}{5}{section*.7}\protected@file@percent }
-\pgfsyspdfmark {pgfid5}{19562754}{12695220}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.2}Modelfactor Analysis}{2}{subsection.1.1.2}\protected@file@percent }
+\newlabel{sec:iter-tile-mf}{{1.1.2}{2}{Modelfactor Analysis}{subsection.1.1.2}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for \texttt  {mandel-omp-iter} (16 threads) and identify the main bottlenecks (e.g.\ scheduling overhead, load imbalance, synchronisation).}{2}{section*.2}\protected@file@percent }
+\pgfsyspdfmark {pgfid1}{19562754}{16440745}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.3}Paraver Analysis}{2}{subsection.1.1.3}\protected@file@percent }
+\newlabel{sec:iter-tile-paraver}{{1.1.3}{2}{Paraver Analysis}{subsection.1.1.3}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) and comment on the task creation pattern, load distribution, and any visible idle periods.}{2}{section*.3}\protected@file@percent }
+\pgfsyspdfmark {pgfid2}{19562754}{11118030}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.4}Strong Scalability}{2}{subsection.1.1.4}\protected@file@percent }
+\newlabel{sec:iter-tile-scalability}{{1.1.4}{2}{Strong Scalability}{subsection.1.1.4}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability (speedup vs.\ number of threads) plot for \texttt  {mandel-omp-iter} and explain the observed trend.}{2}{section*.4}\protected@file@percent }
+\pgfsyspdfmark {pgfid3}{19562754}{5806236}
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Iterative: Fine Grain Task Decomposition}{3}{section.1.2}\protected@file@percent }
+\newlabel{sec:iter-fine}{{1.2}{3}{Iterative: Fine Grain Task Decomposition}{section.1.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2.1}Implementation}{3}{subsection.1.2.1}\protected@file@percent }
+\newlabel{sec:iter-fine-impl}{{1.2.1}{3}{Implementation}{subsection.1.2.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Comparison with Iterative Tile.}{3}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2.2}Modelfactor Analysis}{3}{subsection.1.2.2}\protected@file@percent }
+\newlabel{sec:iter-fine-mf}{{1.2.2}{3}{Modelfactor Analysis}{subsection.1.2.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1.1}{\ignorespaces Fine Grain -- whole program execution metrics. Analysis: par2317, 2026-05-15.}}{3}{table.caption.6}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:fg-exec}{{1.1}{3}{Fine Grain -- whole program execution metrics. Analysis: par2317, 2026-05-15}{table.caption.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1.2}{\ignorespaces Fine Grain -- efficiency breakdown ($\phi $=99.99\%). Analysis: par2317, 2026-05-15.}}{4}{table.caption.7}\protected@file@percent }
+\newlabel{tab:fg-efficiency}{{1.2}{4}{Fine Grain -- efficiency breakdown ($\phi $=99.99\%). Analysis: par2317, 2026-05-15}{table.caption.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1.3}{\ignorespaces Fine Grain -- explicit task statistics. Analysis: par2317, 2026-05-15.}}{4}{table.caption.8}\protected@file@percent }
+\newlabel{tab:fg-tasks}{{1.3}{4}{Fine Grain -- explicit task statistics. Analysis: par2317, 2026-05-15}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Observations.}{4}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2.3}Paraver Analysis}{4}{subsection.1.2.3}\protected@file@percent }
+\newlabel{sec:iter-fine-paraver}{{1.2.3}{4}{Paraver Analysis}{subsection.1.2.3}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Fine Grain and compare with the Tile trace. Comment on whether the extra tasks reduce idle time or introduce additional overhead.}{4}{section*.10}\protected@file@percent }
+\pgfsyspdfmark {pgfid4}{19562754}{11386804}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.2.4}Strong Scalability}{5}{subsection.1.2.4}\protected@file@percent }
 \newlabel{sec:iter-fine-scalability}{{1.2.4}{5}{Strong Scalability}{subsection.1.2.4}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Fine Grain and compare with the Tile speedup curve. Discuss whether additional task granularity improves or hurts scalability at high thread counts.}{5}{section*.8}\protected@file@percent }
-\pgfsyspdfmark {pgfid6}{19562754}{6541569}
+\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Fine Grain and compare with the Tile speedup curve. Discuss whether additional task granularity improves or hurts scalability at high thread counts.}{5}{section*.11}\protected@file@percent }
+\pgfsyspdfmark {pgfid5}{19562754}{47591359}
 \@writefile{toc}{\contentsline {chapter}{\numberline {2}Recursive Task Decomposition}{6}{chapter.2}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
@@ -52,68 +54,66 @@
 \newlabel{sec:rec-leaf}{{2.1}{6}{Recursive: Leaf Task Decomposition}{section.2.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1.1}Implementation}{6}{subsection.2.1.1}\protected@file@percent }
 \newlabel{sec:rec-leaf-impl}{{2.1.1}{6}{Implementation}{subsection.2.1.1}{}}
-\newlabel{lst:rec-leaf}{{2.1}{6}{Key parallel section of \texttt {mandel-omp-rec(1).c} -- leaf tasks}{lstlisting.2.1}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.1}{\ignorespaces Key parallel section of \texttt  {mandel-omp-rec(1).c} -- leaf tasks.}}{6}{lstlisting.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Limitation.}{7}{section*.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.2}Modelfactor Analysis}{7}{subsection.2.1.2}\protected@file@percent }
-\newlabel{sec:rec-leaf-mf}{{2.1.2}{7}{Modelfactor Analysis}{subsection.2.1.2}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for Leaf Recursive (16 threads). Identify the main issues: expected large fraction of time in scheduling/synchronisation due to serial task generation.}{7}{section*.10}\protected@file@percent }
-\pgfsyspdfmark {pgfid7}{19562754}{14405543}
+\@writefile{toc}{\contentsline {paragraph}{Limitation.}{6}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.2}Modelfactor Analysis}{6}{subsection.2.1.2}\protected@file@percent }
+\newlabel{sec:rec-leaf-mf}{{2.1.2}{6}{Modelfactor Analysis}{subsection.2.1.2}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for Leaf Recursive (16 threads). Identify the main issues: expected large fraction of time in scheduling/synchronisation due to serial task generation.}{6}{section*.13}\protected@file@percent }
+\pgfsyspdfmark {pgfid6}{19562754}{7194714}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1.3}Paraver Analysis}{7}{subsection.2.1.3}\protected@file@percent }
 \newlabel{sec:rec-leaf-paraver}{{2.1.3}{7}{Paraver Analysis}{subsection.2.1.3}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Leaf Recursive and comment on the serial task-generation phase, the degree of parallelism achieved during leaf execution, and load balance.}{7}{section*.11}\protected@file@percent }
-\pgfsyspdfmark {pgfid8}{19562754}{8304308}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.4}Strong Scalability}{8}{subsection.2.1.4}\protected@file@percent }
-\newlabel{sec:rec-leaf-scalability}{{2.1.4}{8}{Strong Scalability}{subsection.2.1.4}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Leaf Recursive and discuss the observed speedup. Is it limited to less than 2$\times $ for more than 2 threads? Why?}{8}{section*.12}\protected@file@percent }
-\pgfsyspdfmark {pgfid9}{19562754}{48066495}
-\@writefile{toc}{\contentsline {section}{\numberline {2.2}Recursive: Improved Leaf Task Decomposition}{9}{section.2.2}\protected@file@percent }
-\newlabel{sec:rec-improved}{{2.2}{9}{Recursive: Improved Leaf Task Decomposition}{section.2.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.1}Implementation}{9}{subsection.2.2.1}\protected@file@percent }
-\newlabel{sec:rec-improved-impl}{{2.2.1}{9}{Implementation}{subsection.2.2.1}{}}
-\newlabel{lst:rec-improved}{{2.2}{9}{Key changes in the Improved Leaf version (depth-cutoff mechanism)}{lstlisting.2.2}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.2}{\ignorespaces Key changes in the Improved Leaf version (depth-cutoff mechanism).}}{9}{lstlisting.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Improvements over plain Leaf.}{10}{section*.13}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.2}Modelfactor Analysis}{10}{subsection.2.2.2}\protected@file@percent }
-\newlabel{sec:rec-improved-mf}{{2.2.2}{10}{Modelfactor Analysis}{subsection.2.2.2}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for Improved Leaf (16 threads). Compare with the plain Leaf table (Section~\ref {sec:rec-leaf-mf}): has the useful computation fraction increased? Has scheduling overhead decreased?}{10}{section*.14}\protected@file@percent }
-\pgfsyspdfmark {pgfid10}{19562754}{11554637}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.3}Paraver Analysis}{10}{subsection.2.2.3}\protected@file@percent }
-\newlabel{sec:rec-improved-paraver}{{2.2.3}{10}{Paraver Analysis}{subsection.2.2.3}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Improved Leaf. Include both the non-improved and the improved traces for direct comparison.}{10}{section*.15}\protected@file@percent }
-\pgfsyspdfmark {pgfid11}{19562754}{5795316}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.4}Strong Scalability}{11}{subsection.2.2.4}\protected@file@percent }
-\newlabel{sec:rec-improved-scalability}{{2.2.4}{11}{Strong Scalability}{subsection.2.2.4}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Improved Leaf and compare with plain Leaf. Confirm that speedups larger than $2\times $ are achieved for more than 2 threads.}{11}{section*.16}\protected@file@percent }
-\pgfsyspdfmark {pgfid12}{19562754}{48066495}
-\@writefile{toc}{\contentsline {section}{\numberline {2.3}Recursive: Tree Task Decomposition}{12}{section.2.3}\protected@file@percent }
-\newlabel{sec:rec-tree}{{2.3}{12}{Recursive: Tree Task Decomposition}{section.2.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Implementation}{12}{subsection.2.3.1}\protected@file@percent }
-\newlabel{sec:rec-tree-impl}{{2.3.1}{12}{Implementation}{subsection.2.3.1}{}}
-\newlabel{lst:rec-tree}{{2.3}{12}{Tree recursive version -- task creation at internal nodes}{lstlisting.2.3}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2.3}{\ignorespaces Tree recursive version -- task creation at internal nodes.}}{12}{lstlisting.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Comparison with Improved Leaf.}{13}{section*.17}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Modelfactor Analysis}{13}{subsection.2.3.2}\protected@file@percent }
-\newlabel{sec:rec-tree-mf}{{2.3.2}{13}{Modelfactor Analysis}{subsection.2.3.2}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for Tree Recursive (16 threads) and compare with Improved Leaf. Does the extra task creation at internal nodes improve useful computation or increase overhead?}{13}{section*.18}\protected@file@percent }
-\pgfsyspdfmark {pgfid13}{19562754}{12427382}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.3}Paraver Analysis}{13}{subsection.2.3.3}\protected@file@percent }
-\newlabel{sec:rec-tree-paraver}{{2.3.3}{13}{Paraver Analysis}{subsection.2.3.3}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Tree Recursive and compare with the Improved Leaf trace. Comment on task density, load balance, and any synchronisation gaps introduced by the \texttt  {taskgroup} barriers.}{13}{section*.19}\protected@file@percent }
-\pgfsyspdfmark {pgfid14}{19562754}{6281372}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.4}Strong Scalability}{14}{subsection.2.3.4}\protected@file@percent }
-\newlabel{sec:rec-tree-scalability}{{2.3.4}{14}{Strong Scalability}{subsection.2.3.4}{}}
-\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Tree Recursive and compare with Improved Leaf. Identify which version achieves better scalability and explain why.}{14}{section*.20}\protected@file@percent }
-\pgfsyspdfmark {pgfid15}{19562754}{48066495}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Final Comparison Between All Parallel Strategies}{15}{appendix.A}\protected@file@percent }
+\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Leaf Recursive and comment on the serial task-generation phase, the degree of parallelism achieved during leaf execution, and load balance.}{7}{section*.14}\protected@file@percent }
+\pgfsyspdfmark {pgfid7}{19562754}{47643775}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.4}Strong Scalability}{7}{subsection.2.1.4}\protected@file@percent }
+\newlabel{sec:rec-leaf-scalability}{{2.1.4}{7}{Strong Scalability}{subsection.2.1.4}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Leaf Recursive and discuss the observed speedup. Is it limited to less than 2$\times $ for more than 2 threads? Why?}{7}{section*.15}\protected@file@percent }
+\pgfsyspdfmark {pgfid8}{19562754}{41965260}
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Recursive: Improved Leaf Task Decomposition}{8}{section.2.2}\protected@file@percent }
+\newlabel{sec:rec-improved}{{2.2}{8}{Recursive: Improved Leaf Task Decomposition}{section.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.1}Implementation}{8}{subsection.2.2.1}\protected@file@percent }
+\newlabel{sec:rec-improved-impl}{{2.2.1}{8}{Implementation}{subsection.2.2.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Improvements over plain Leaf.}{8}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.2}Modelfactor Analysis}{8}{subsection.2.2.2}\protected@file@percent }
+\newlabel{sec:rec-improved-mf}{{2.2.2}{8}{Modelfactor Analysis}{subsection.2.2.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Observations.}{8}{section*.20}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2.1}{\ignorespaces Improved Leaf -- whole program execution metrics. Analysis: par2317, 2026-05-15.}}{9}{table.caption.17}\protected@file@percent }
+\newlabel{tab:li-exec}{{2.1}{9}{Improved Leaf -- whole program execution metrics. Analysis: par2317, 2026-05-15}{table.caption.17}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2.2}{\ignorespaces Improved Leaf -- efficiency breakdown ($\phi $=99.98\%). Analysis: par2317, 2026-05-15.}}{9}{table.caption.18}\protected@file@percent }
+\newlabel{tab:li-efficiency}{{2.2}{9}{Improved Leaf -- efficiency breakdown ($\phi $=99.98\%). Analysis: par2317, 2026-05-15}{table.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.3}Paraver Analysis}{9}{subsection.2.2.3}\protected@file@percent }
+\newlabel{sec:rec-improved-paraver}{{2.2.3}{9}{Paraver Analysis}{subsection.2.2.3}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Improved Leaf. Include both the non-improved and the improved traces for direct comparison.}{9}{section*.21}\protected@file@percent }
+\pgfsyspdfmark {pgfid9}{19562754}{11766766}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.4}Strong Scalability}{9}{subsection.2.2.4}\protected@file@percent }
+\newlabel{sec:rec-improved-scalability}{{2.2.4}{9}{Strong Scalability}{subsection.2.2.4}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Improved Leaf and compare with plain Leaf. Confirm that speedups larger than $2\times $ are achieved for more than 2 threads.}{9}{section*.22}\protected@file@percent }
+\pgfsyspdfmark {pgfid10}{19562754}{6486947}
+\@writefile{lot}{\contentsline {table}{\numberline {2.3}{\ignorespaces Improved Leaf -- explicit task statistics. Analysis: par2317, 2026-05-15.}}{10}{table.caption.19}\protected@file@percent }
+\newlabel{tab:li-tasks}{{2.3}{10}{Improved Leaf -- explicit task statistics. Analysis: par2317, 2026-05-15}{table.caption.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}Recursive: Tree Task Decomposition}{11}{section.2.3}\protected@file@percent }
+\newlabel{sec:rec-tree}{{2.3}{11}{Recursive: Tree Task Decomposition}{section.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Implementation}{11}{subsection.2.3.1}\protected@file@percent }
+\newlabel{sec:rec-tree-impl}{{2.3.1}{11}{Implementation}{subsection.2.3.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Comparison with Improved Leaf.}{11}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Modelfactor Analysis}{11}{subsection.2.3.2}\protected@file@percent }
+\newlabel{sec:rec-tree-mf}{{2.3.2}{11}{Modelfactor Analysis}{subsection.2.3.2}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert Modelfactors table for Tree Recursive (16 threads) and compare with Improved Leaf. Does the extra task creation at internal nodes improve useful computation or increase overhead?}{11}{section*.24}\protected@file@percent }
+\pgfsyspdfmark {pgfid11}{19562754}{20891738}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.3}Paraver Analysis}{11}{subsection.2.3.3}\protected@file@percent }
+\newlabel{sec:rec-tree-paraver}{{2.3.3}{11}{Paraver Analysis}{subsection.2.3.3}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert Paraver screenshots (16 threads) for Tree Recursive and compare with the Improved Leaf trace. Comment on task density, load balance, and any synchronisation gaps introduced by the \texttt  {taskgroup} barriers.}{11}{section*.25}\protected@file@percent }
+\pgfsyspdfmark {pgfid12}{19562754}{14703143}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.4}Strong Scalability}{11}{subsection.2.3.4}\protected@file@percent }
+\newlabel{sec:rec-tree-scalability}{{2.3.4}{11}{Strong Scalability}{subsection.2.3.4}{}}
+\@writefile{tdo}{\contentsline {todo}{Insert the strong scalability plot for Tree Recursive and compare with Improved Leaf. Identify which version achieves better scalability and explain why.}{11}{section*.26}\protected@file@percent }
+\pgfsyspdfmark {pgfid13}{19562754}{8937268}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Final Comparison Between All Parallel Strategies}{12}{appendix.A}\protected@file@percent }
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {A.1}Summary of Elapsed Execution Times}{15}{section.A.1}\protected@file@percent }
-\newlabel{app:comparison}{{A.1}{15}{Summary of Elapsed Execution Times}{section.A.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {A.1}{\ignorespaces Elapsed execution times (seconds) for each version and number of threads.}}{15}{table.caption.21}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{tab:elapsed}{{A.1}{15}{Elapsed execution times (seconds) for each version and number of threads}{table.caption.21}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.2}Best Implementation Discussion}{15}{section.A.2}\protected@file@percent }
-\@writefile{tdo}{\contentsline {todo}{Fill in Table~\ref {tab:elapsed} and write the discussion once experiments are complete.}{15}{section*.22}\protected@file@percent }
-\pgfsyspdfmark {pgfid16}{19562754}{16368247}
-\gdef \@abspage@last{16}
+\@writefile{toc}{\contentsline {section}{\numberline {A.1}Summary of Elapsed Execution Times}{12}{section.A.1}\protected@file@percent }
+\newlabel{app:comparison}{{A.1}{12}{Summary of Elapsed Execution Times}{section.A.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.1}{\ignorespaces Elapsed execution times (seconds) for each version and number of threads.}}{12}{table.caption.27}\protected@file@percent }
+\newlabel{tab:elapsed}{{A.1}{12}{Elapsed execution times (seconds) for each version and number of threads}{table.caption.27}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.2}Best Implementation Discussion}{12}{section.A.2}\protected@file@percent }
+\@writefile{tdo}{\contentsline {todo}{Fill in Table~\ref {tab:elapsed} and write the discussion once experiments are complete.}{12}{section*.28}\protected@file@percent }
+\pgfsyspdfmark {pgfid14}{19562754}{16368793}
+\gdef \@abspage@last{13}

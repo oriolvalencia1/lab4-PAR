@@ -19,66 +19,7 @@ leaf tasks are also created in this region ($d \le \mathtt{CUTOFF}$).
 Below the cutoff depth, both recursive and leaf calls revert to inline execution to
 control total task count.
 
-\begin{lstlisting}[caption={Tree recursive version -- task creation at internal nodes.},
-                   label={lst:rec-tree}]
-#define CUTOFF 16
-
-void mandel_tiled_rec(int M[][COLS], int NRows, int NCols,
-                      int start_fil, int start_col, ..., int d)
-{
-    // ... border check (unchanged) ...
-
-    if (equal) {
-        if (d <= CUTOFF) {
-            #pragma omp task firstprivate(y, x, NRows, NCols)
-            { /* fill uniform sub-tile */ }
-        } else {
-            /* inline fill */
-        }
-    } else if (NCols <= TILE) {
-        if (d <= CUTOFF) {
-            #pragma omp task firstprivate(y, x, NRows, NCols)
-            { /* compute leaf sub-tile */ }
-        } else {
-            /* inline compute */
-        }
-    } else {
-        // Internal node: tasks for each quadrant (tree strategy)
-        #pragma omp taskgroup
-        {
-            if (NRows > TILE) {
-                if (d < CUTOFF) {
-                    // Four tasks -- parallel tree expansion
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil,         start_col,         ..., d+1);
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil+NRows/2, start_col,         ..., d+1);
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil,         start_col+NCols/2, ..., d+1);
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil+NRows/2, start_col+NCols/2, ..., d+1);
-                } else {
-                    // Sequential beyond cutoff
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil,         start_col,         ..., d+1);
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil+NRows/2, start_col,         ..., d+1);
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil,         start_col+NCols/2, ..., d+1);
-                    mandel_tiled_rec(M, NRows/2, NCols/2,
-                                     start_fil+NRows/2, start_col+NCols/2, ..., d+1);
-                }
-            } else {
-                /* Similar two-way split for column-only case */
-            }
-        }
-    }
-}
-\end{lstlisting}
+The complete implementation (task creation at both internal nodes and leaves, with the same depth-cutoff as the Improved Leaf version) is in \texttt{codis/mandel-omp-rec(2).c}.
 
 The \texttt{\#pragma~omp~taskgroup} at each internal node enforces that all four
 child tasks (and their entire subtrees) complete before the enclosing task terminates,

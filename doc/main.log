@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  15 MAY 2026 12:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.23)  15 MAY 2026 13:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -728,7 +728,7 @@ File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count335
 \l__pdf_internal_box=\box68
 )
-No file main.aux.
+(./main.aux)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 70.
@@ -749,6 +749,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 70.
 LaTeX Font Info:    ... okay on input line 70.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 70.
 LaTeX Font Info:    ... okay on input line 70.
+
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -807,6 +808,8 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 Package hyperref Info: Link coloring OFF on input line 70.
+
+(./main.out) (./main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
 
@@ -822,8 +825,7 @@ Package caption Info: float package is loaded.
 Package caption Info: End \AtBeginDocument code.
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-No file main.toc.
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./main.toc)
 \tf@toc=\write5
 \openout5 = `main.toc'.
 
@@ -843,58 +845,52 @@ LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 1
  (/usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 22.
-LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 23.
-
-[2
-
-]
 Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
-ine 66.
+ine 35.
 
-Underfull \hbox (badness 5970) in paragraph at lines 109--109
+Underfull \hbox (badness 5970) in paragraph at lines 78--78
 [][][]\T1/cmr/m/n/12 Insert the strong scal-a-bil-ity (speedup vs. num-ber of t
 hreads) plot for 
  []
 
-) [3] (./iterative-finegrain.tex [4
+) [2
 
-]
-Overfull \hbox (42.1777pt too wide) in paragraph at lines 81--86
-\T1/cmr/m/n/12 cre-ments re-main pro-tected by \T1/cmtt/m/n/12 #pragma omp atom
-ic\T1/cmr/m/n/12 . Dis-play up-dates use \T1/cmtt/m/n/12 #pragma omp critical
- []
+] (./iterative-finegrain.tex (./fine-grain-table1.tex)
+(./fine-grain-table2.tex
 
-) [5]
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) (./fine-grain-table3.tex
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) [3
+
+]) [4] [5]
 Chapter 2.
 (./recursive-leaf.tex [6
 
 
+]) [7] (./recursive-improved-leaf.tex
+(./leaf-imp-table1.tex
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) (./leaf-imp-table2.tex
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) (./leaf-imp-table3.tex
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) [8
+
+]) [9] [10] (./recursive-tree.tex) [11
+
 ]
-
-LaTeX Warning: Reference `sec:rec-improved' on page 7 undefined on input line 8
-6.
-
-) [7] [8] (./recursive-improved-leaf.tex [9
-
-]
-
-LaTeX Warning: Reference `sec:rec-leaf-mf' on page 10 undefined on input line 1
-04.
-
-) [10] [11] (./recursive-tree.tex [12
-
-]) [13] [14]
 Appendix A.
-
-LaTeX Warning: Reference `tab:elapsed' on page 15 undefined on input line 104.
-
-
-LaTeX Warning: Reference `tab:elapsed' on page 15 undefined on input line 136.
-
-[15
+[12
 
 
 ] (./main.aux)
@@ -902,55 +898,41 @@ LaTeX Warning: Reference `tab:elapsed' on page 15 undefined on input line 136.
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `main.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `main.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  D2B5563E1EFC412EF831B37FA5A4B235;5357.
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: D2B5563E1EFC412EF831B37FA5A4B235;5357.
  ) 
 Here is how much of TeX's memory you used:
- 25766 strings out of 476120
- 468725 string characters out of 5793657
- 2064975 words of memory out of 5000000
- 47055 multiletter control sequences out of 15000+600000
- 576380 words of font info for 77 fonts, out of 8000000 for 9000
+ 25216 strings out of 476120
+ 463314 string characters out of 5793657
+ 1962975 words of memory out of 5000000
+ 46714 multiletter control sequences out of 15000+600000
+ 574223 words of font info for 73 fonts, out of 8000000 for 9000
  40 hyphenation exceptions out of 8191
- 99i,9n,117p,434b,2133s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,10n,117p,434b,861s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1200.600
 pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1200.60
-0pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecit1000.6
-00pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1000.
-600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0600
-.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt120
+0pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1200.6
+00pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.
+600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1728
+.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm120
 0.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx12
-00.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1
-440.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx
-1728.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecr
-m1200.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
-bx2488.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/e
-crm1095.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/
-ecrm1440.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec
-/ecbx2074.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></u
-sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (16 pages, 254429 bytes).
+00.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx2
+488.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm
+1095.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ecr
+m1440.600pk> </home/oriol/.texlive2023/texmf-var/fonts/pk/ljfour/jknappen/ec/ec
+bx2074.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex
+10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb
+></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/
+share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/share/te
+xlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/font
+s/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (13 pages, 232942 bytes).
 PDF statistics:
- 991 PDF objects out of 1000 (max. 8388607)
- 487 compressed objects within 5 object streams
- 305 named destinations out of 1000 (max. 500000)
- 13 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 738 PDF objects out of 1000 (max. 8388607)
+ 332 compressed objects within 4 object streams
+ 74 named destinations out of 1000 (max. 500000)
+ 253 words of extra memory for PDF output out of 10000 (max. 10000000)
 

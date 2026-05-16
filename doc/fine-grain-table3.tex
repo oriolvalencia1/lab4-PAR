@@ -1,0 +1,29 @@
+\begin{table}[h]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\multicolumn{11}{|c|}{Statistics about explicit tasks in parallel fraction} \\
+\hline
+\hline
+Number of threads & 1 & 2 & 4 & 8 & 12 & 16 & 20 & 24 & 28 & 32 \\
+\hline
+\hline
+Number of explicit tasks executed (total)        &          8448.0 &          8448.0 &          8448.0 &          8448.0 &          8448.0 &          8448.0 &          8448.0 &          8448.0 &          8448.0 &          8448.0 \\
+\hline
+LB (number of explicit tasks executed)           &             1.0 &            0.95 &            0.64 &            0.45 &            0.31 &            0.38 &            0.38 &             0.4 &            0.22 &            0.31 \\
+\hline
+LB (time executing explicit tasks)               &             1.0 &             1.0 &             1.0 &            0.99 &            0.99 &            0.97 &            0.96 &            0.96 &            0.93 &            0.92 \\
+\hline
+Time per explicit task (average us)                 &          411.87 &          413.36 &          413.91 &          416.69 &           419.9 &          426.35 &          428.96 &          434.22 &          447.72 &          449.23 \\
+\hline
+Overhead per explicit task (synch \%)             &             0.0 &            0.33 &             0.6 &             1.7 &            2.42 &            4.36 &            4.94 &            6.57 &            8.01 &            9.28 \\
+\hline
+Overhead per explicit task (sched \%)             &            0.06 &            0.19 &            0.35 &            0.85 &            1.52 &            2.57 &            3.24 &            4.67 &            6.53 &            7.59 \\
+\hline
+Number of taskwait/taskgroup (total)             &            64.0 &            64.0 &            64.0 &            64.0 &            64.0 &            64.0 &            64.0 &            64.0 &            64.0 &            64.0 \\
+\hline
+\end{tabular}
+}
+\caption{Fine Grain -- explicit task statistics. Analysis: par2317, 2026-05-15.}
+\label{tab:fg-tasks}
+\end{table}

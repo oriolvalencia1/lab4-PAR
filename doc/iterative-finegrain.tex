@@ -24,65 +24,13 @@ task, the fine grain version exposes three independent sub-tasks per tile:
 The outer tile task from the Tile version is \textbf{kept} as a wrapper; the three inner
 tasks are created inside it.
 
-\begin{lstlisting}[caption={Key parallel section of \texttt{fine-grain.c} -- inner tasks
-                   for each tile.}, label={lst:fine-grain}]
-#pragma omp parallel
-#pragma omp single
-for (int y = 0; y < ROWS; y += TILE)
-    for (int x = 0; x < COLS; x += TILE) {
-        #pragma omp task firstprivate(x, y)
-        {
-            int eV, eH;
-
-            #pragma omp taskgroup
-            {
-                // Task 1: vertical borders (left & right columns)
-                #pragma omp task shared(eV)
-                {
-                    eV = 1;
-                    int ref = pixel_dwell(..., x, y, ...);
-                    for (int py = y; py < y + TILE; py++) {
-                        M[py][x]        = pixel_dwell(..., x,        py, ...);
-                        M[py][x+TILE-1] = pixel_dwell(..., x+TILE-1, py, ...);
-                        eV &= (ref == M[py][x]);
-                        eV &= (ref == M[py][x+TILE-1]);
-                    }
-                }
-                // Task 2: horizontal borders (top & bottom rows)
-                #pragma omp task shared(eH)
-                {
-                    eH = 1;
-                    for (int px = x; px < x + TILE; px++) {
-                        M[y][px]        = pixel_dwell(..., px, y,        ...);
-                        M[y+TILE-1][px] = pixel_dwell(..., px, y+TILE-1, ...);
-                        eH &= (M[y][x] == M[y][px]);
-                        eH &= (M[y][x] == M[y+TILE-1][px]);
-                    }
-                }
-            } // implicit taskwait -- eH and eV are ready here
-
-            // Task 3: fill or compute (spawns per-row child tasks)
-            #pragma omp task
-            {
-                if (eH & eV) {                       // uniform tile
-                    for (int py = y; py < y + TILE; py++)
-                        #pragma omp task
-                        fill_row(M, py, x, TILE, M[y][x], ...);
-                } else {                             // non-uniform tile
-                    for (int py = y; py < y + TILE; py++)
-                        #pragma omp task
-                        compute_row(M, py, x, TILE, ...);
-                }
-            }
-        }
-    }
-\end{lstlisting}
+The key parallel section (three inner tasks per tile: vertical borders, horizontal borders, and fill/compute) is implemented in \texttt{codis/fine-grain.c}.
 
 The \texttt{\#pragma~omp~taskgroup} enforces that the result tasks begin only after
 \emph{both} border tasks complete, because the fill/compute decision depends on
 \texttt{eV} and \texttt{eH}.
-Histogram increments remain protected by \texttt{\#pragma~omp~atomic}.
-Display updates use \texttt{\#pragma~omp~critical} to serialize X11 calls.
+Histogram increments remain protected by \texttt{\#pragma omp atomic}.
+Display updates use \texttt{\#pragma omp critical} to serialize X11 calls.
 
 \paragraph{Comparison with Iterative Tile.}
 The Tile version creates $\bigl(\mathit{ROWS}/\mathit{TILE}\bigr)^{2}$ tasks in total.
@@ -94,12 +42,42 @@ overhead; whether the trade-off is beneficial depends on tile size and thread co
 \subsection{Modelfactor Analysis}
 \label{sec:iter-fine-mf}
 
-% TODO: Run  sbatch submit-strong-extrae.sh mandel-omp-fine-grain
-%       Paste Modelfactors tables and compare with the Tile version.
+Tables~\ref{tab:fg-exec}--\ref{tab:fg-tasks} summarise the Modelfactors output for
+\texttt{mandel-omp-fine-grain} obtained on \texttt{par2317}.
 
-\todo[inline]{Insert Modelfactors table for \texttt{fine-grain} (16 threads).
-Compare with Iterative Tile: does finer granularity improve useful parallelism or does
-scheduling overhead dominate?}
+\input{fine-grain-table1}
+
+\input{fine-grain-table2}
+
+\input{fine-grain-table3}
+
+\paragraph{Observations.}
+The fine grain version scales remarkably well across all thread counts.
+At 32 threads the elapsed time drops from 3.49\,s to 0.13\,s, yielding a
+speedup of $26.28\times$ and a global efficiency of 82\,\% (Table~\ref{tab:fg-exec}).
+
+The efficiency breakdown (Table~\ref{tab:fg-efficiency}) shows that the dominant loss
+source is \emph{load imbalance}: the load-balancing factor falls to 87.67\,\% at 32
+threads while in-execution efficiency remains above 95\,\%.
+IPC and instruction scalability are virtually perfect ($\geq$99.8\,\%), confirming that
+the computation itself is highly regular and portable across cores.
+
+The task statistics (Table~\ref{tab:fg-tasks}) reveal 8\,448 explicit tasks in total,
+providing ample work to keep all threads busy.
+Synchronisation overhead grows from 0\,\% at 1 thread to 9.28\,\% at 32 threads,
+while scheduling overhead reaches 7.59\,\%.
+These costs are still modest relative to the useful computation per task
+(\(\approx\)412\,\textmu s average), so the task granularity remains appropriate even at
+high parallelism.
+The slight decline in load balance at 32 threads arises because the 8\,448 tasks do not
+divide evenly among threads and some tiles are computationally heavier (Mandelbrot
+border regions).
+
+Compared with the Iterative Tile version, the fine grain decomposition exposes
+substantially more parallelism by splitting each tile's border and interior work into
+independent tasks.
+This allows threads to overlap border computation across different tiles and fills
+in potential idle gaps, leading to the near-linear speedup curve observed here.
 
 \subsection{Paraver Analysis}
 \label{sec:iter-fine-paraver}

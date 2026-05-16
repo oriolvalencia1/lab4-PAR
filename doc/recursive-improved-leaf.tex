@@ -29,57 +29,9 @@ The improvement introduces a \emph{depth cutoff} parameter \texttt{d} (initialis
 The value \texttt{CUTOFF = 16} was chosen empirically so that the number of tasks at
 the cutoff level matches or exceeds the number of available threads.
 
-\begin{lstlisting}[caption={Key changes in the Improved Leaf version (depth-cutoff mechanism).},
-                   label={lst:rec-improved}]
-#define CUTOFF 16
-
-void mandel_tiled_rec(int M[][COLS], int NRows, int NCols,
-                      int start_fil, int start_col, ..., int d)
-{
-    // ... border check, equal computation (unchanged) ...
-
-    if (equal) {
-        if (d <= CUTOFF) {
-            #pragma omp task firstprivate(y, x, NRows, NCols)
-            { /* fill uniform sub-tile */ }
-        } else {
-            /* fill inline -- avoid task overhead at deep levels */
-        }
-    } else if (NCols <= TILE) {
-        if (d <= CUTOFF) {
-            #pragma omp task firstprivate(y, x, NRows, NCols)
-            { /* compute leaf sub-tile */ }
-        } else {
-            /* compute inline */
-        }
-    } else {
-        #pragma omp taskgroup
-        {
-            if (NRows > TILE) {
-                if (d < CUTOFF) {
-                    /* tasks for all four quadrants */
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col,         ..., d+1);
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col,         ..., d+1);
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col+NCols/2, ..., d+1);
-                    #pragma omp task firstprivate(NRows, NCols, start_fil, start_col, d)
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col+NCols/2, ..., d+1);
-                } else {
-                    /* sequential -- beyond cutoff */
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col,         ..., d+1);
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col,         ..., d+1);
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil,         start_col+NCols/2, ..., d+1);
-                    mandel_tiled_rec(M, NRows/2, NCols/2, start_fil+NRows/2, start_col+NCols/2, ..., d+1);
-                }
-            } else {
-                /* similar for column-only split */
-            }
-        }
-    }
-}
-\end{lstlisting}
+\begin{sloppypar}
+The complete implementation (depth-cutoff mechanism with \texttt{CUTOFF = 16}) is in \path{codis/leaf-improved.c}.
+\end{sloppypar}
 
 The \texttt{\#pragma~omp~taskgroup} ensures that all four quadrant tasks (and their
 descendants) finish before control returns to the caller, preserving the border-read
@@ -97,11 +49,51 @@ correctness that the leaf version relies on.
 \subsection{Modelfactor Analysis}
 \label{sec:rec-improved-mf}
 
-% TODO: Run Modelfactors for the improved leaf version and compare with the plain leaf.
+Tables~\ref{tab:li-exec}--\ref{tab:li-tasks} summarise the Modelfactors output for
+\texttt{mandel-omp-rec-improved-leaf} obtained on \texttt{par2317}.
 
-\todo[inline]{Insert Modelfactors table for Improved Leaf (16 threads).
-Compare with the plain Leaf table (Section~\ref{sec:rec-leaf-mf}): has the useful
-computation fraction increased?  Has scheduling overhead decreased?}
+\input{leaf-imp-table1}
+
+\input{leaf-imp-table2}
+
+\input{leaf-imp-table3}
+
+\paragraph{Observations.}
+The improved leaf version exposes a clear performance ceiling.
+Elapsed time decreases from 1.82\,s (1 thread) to 0.38\,s at 8 threads
+(speedup $4.76\times$) and then remains \emph{flat} all the way to 32 threads
+(Table~\ref{tab:li-exec}).
+Efficiency collapses to 15\,\% at 32 threads.
+
+The efficiency breakdown (Table~\ref{tab:li-efficiency}) identifies \emph{load
+imbalance} as the dominant bottleneck: the load-balancing factor falls from 100\,\% at
+1 thread to only 17.31\,\% at 32 threads.
+This is a direct consequence of the small total task count: only \textbf{66 explicit
+tasks} are generated (Table~\ref{tab:li-tasks}), making it impossible to distribute
+work evenly across more than a handful of threads.
+
+The synchronisation overhead per task tells the same story:
+it grows from 0.04\,\% at 1 thread to \textbf{379\,\%} at 32 threads, meaning threads
+spend nearly four times as long waiting at synchronisation points (\texttt{taskwait}/
+\texttt{taskgroup}) as they do executing useful computation.
+This is caused by the 1\,004 \texttt{taskwait}/\texttt{taskgroup} operations that must
+serialise access between recursion levels, each becoming a bottleneck when more threads
+contend for a small pool of tasks.
+Scheduling overhead, by contrast, is negligible ($\leq$0.02\,\%), confirming that the
+overhead is synchronisation-bound, not dispatch-bound.
+
+\begin{sloppypar}
+The saturation at 8 threads matches the CUTOFF-induced task count: with \texttt{CUTOFF=16},
+the recursion tree generates at most $4^{\lceil\log_4 66\rceil}$ leaf tasks, and at 8
+threads the work is fully distributed; additional threads find no tasks and remain idle.
+\end{sloppypar}
+
+Compared with the plain Leaf version, the improved leaf eliminates the serial
+task-generation phase (multiple threads now traverse the recursion tree in parallel up
+to the cutoff), but the fundamental limit of 66 tasks prevents further scaling beyond
+8 threads.
+Increasing \texttt{CUTOFF} would generate more tasks and potentially improve scalability
+at the cost of higher synchronisation overhead per task.
 
 \subsection{Paraver Analysis}
 \label{sec:rec-improved-paraver}
