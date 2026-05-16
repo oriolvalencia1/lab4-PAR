@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1778864987.54225 "/Users/dudu/Desktop/3rGEI/2n Quatri/PAR/lab4-PAR/doc/main.tex" "main.pdf" "main" 1778864988.93063 0
+["pdflatex"] 1778924433.93324 "/Users/dudu/Desktop/3rGEI/2n Quatri/PAR/lab4-PAR/doc/main.tex" "main.pdf" "main" 1778924435.45477 0
   "/Users/dudu/Desktop/3rGEI/2n Quatri/PAR/lab4-PAR/doc/main.tex" 1778861108.68982 4445 5f0576db96b86cb45d2f8e557131e56a ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
@@ -208,13 +208,13 @@
   "fotosL4/tercera_tabla_tree.png" 1778860488.51895 44664 fe9c32a76edb2e5067f5b8726e731db9 ""
   "iterative-finegrain.tex" 1778858977.80586 6216 164615891bb4e1744bea755510d705f9 ""
   "iterative-tile.tex" 1778858977.80614 4554 f8e04427cdaafae5a285874f61d7337e ""
-  "main.aux" 1778864988.79733 14615 0675f7511341b5100a81fb5b2db78c0f "pdflatex"
-  "main.out" 1778864988.79896 5357 d2b5563e1efc412ef831b37fa5a4b235 "pdflatex"
+  "main.aux" 1778924435.30291 14773 7f2bdba6bfbd750a3b936d639695cb87 "pdflatex"
+  "main.out" 1778924435.30451 5357 d2b5563e1efc412ef831b37fa5a4b235 "pdflatex"
   "main.tex" 1778861108.68982 4445 5f0576db96b86cb45d2f8e557131e56a ""
-  "main.toc" 1778864988.79922 3007 6ddfa90e767847e3205a06ad65e359a5 "pdflatex"
+  "main.toc" 1778924435.30479 2951 ed772d757a897c0518c22b3114aef932 "pdflatex"
   "recursive-improved-leaf.tex" 1778858977.809 6495 1ad6c055cd6100c88ae6ec1736748850 ""
-  "recursive-leaf.tex" 1778864987.37131 7964 e9f2e263e5e10a013529f2d962193ee3 ""
-  "recursive-tree.tex" 1778862582.46411 6267 5d8feb8f835c968c85c7f220c3627776 ""
+  "recursive-leaf.tex" 1778920874.87776 6681 dfff3860c9a836112b5a38677b580a53 ""
+  "recursive-tree.tex" 1778924433.68529 8672 854b970852b8f94cb96b6f65a4c17740 ""
   (generated)
   "main.aux"
   "main.log"

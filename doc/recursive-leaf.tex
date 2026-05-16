@@ -5,85 +5,36 @@
 
 \subsection{Implementation}
 \label{sec:rec-leaf-impl}
+El codi de la versió \textbf{leaf recursive} es troba a \texttt{mandel-omp-leaf.c}.\\
+El primer que analitzarem és que la regió paral·lela es crea al main, abans de la crida a \texttt{mandel\_tiled\_rec}, declarant la regió com a \texttt{single}. Això provocarà que un únic thread crei les tasques i faci el recorregut recursiu (és com funciona l'estratègia \textbf{leaf}).
 
-The \textbf{leaf recursive} strategy implements the Mandelbrot computation through a
-divide-and-conquer quadtree recursion.
-Starting from the full $\mathit{ROWS}\times\mathit{COLS}$ matrix, each call to
-\texttt{mandel\_tiled\_rec} inspects the four borders of its sub-tile:
-
-\begin{itemize}
-    \item If all border pixels share the same iteration count (\texttt{equal = 1}),
-          the entire sub-tile is filled with that value via a \textbf{leaf task}.
-    \item If the sub-tile is at or below the minimum tile size (\texttt{NCols <= TILE}),
-          all interior pixels are computed individually via a \textbf{leaf task}.
-    \item Otherwise the sub-tile is split into four quadrants (or two halves when only
-          columns remain to be halved) and \texttt{mandel\_tiled\_rec} is called
-          recursively for each quadrant -- \emph{sequentially}, with no task at the
-          recursive call sites.
-\end{itemize}
-
-Tasks are therefore created only at the \emph{leaves} of the recursion tree.
-
-\begin{lstlisting}[caption={Key parallel section of \texttt{mandel-omp-rec(1).c} -- leaf tasks.},
-                   label={lst:rec-leaf}]
+\begin{lstlisting}[caption={Regió paral·lela i crida inicial al \texttt{main}.},label={lst:rec-leaf-main}]
 #pragma omp parallel
 #pragma omp single
-mandel_tiled_rec(M, ROWS, COLS, 0, 0, ...);
-
-// Inside mandel_tiled_rec:
-void mandel_tiled_rec(int M[][COLS], int NRows, int NCols,
-                      int start_fil, int start_col, ...)
-{
-    int non_first_call = (NRows != ROWS) | (NCols != COLS);
-    int equal = non_first_call;
-    // ... compute borders, update equal ...
-
-    if (equal) {
-        // Leaf task: fill uniform sub-tile
-        #pragma omp task
-        {
-            for (int py = y; py < y + NRows; py++)
-                for (int px = x; px < x + NCols; px++) {
-                    M[py][px] = M[y][x];
-                    // display / histogram ...
-                }
-        }
-    } else if (NCols <= TILE) {
-        // Leaf task: compute smallest sub-tile
-        #pragma omp task firstprivate(y, x)
-        {
-            for (int py = y; py < y + NRows; py++)
-                for (int px = x; px < x + NCols; px++) {
-                    M[py][px] = pixel_dwell(...);
-                    // histogram / display ...
-                }
-        }
-    } else {
-        // Recurse into four quadrants (no task here -- leaf strategy)
-        if (NRows > TILE) {
-            mandel_tiled_rec(M, NRows/2, NCols/2, y,          x,          ...);
-            mandel_tiled_rec(M, NRows/2, NCols/2, y+NRows/2,  x,          ...);
-            mandel_tiled_rec(M, NRows/2, NCols/2, y,          x+NCols/2,  ...);
-            mandel_tiled_rec(M, NRows/2, NCols/2, y+NRows/2,  x+NCols/2,  ...);
-        } else {
-            mandel_tiled_rec(M, NRows,   NCols/2, y, x,          ...);
-            mandel_tiled_rec(M, NRows,   NCols/2, y, x+NCols/2,  ...);
-        }
-    }
-}
+mandel_tiled_rec((int (*)[width])Hmatrix, height, width, 0, 0,
+             real_min, imag_min, real_max, imag_max,
+             scale_real, scale_imag, maxiter);
 \end{lstlisting}
 
-Because the recursive calls are sequential, only one thread walks the tree and generates
-leaf tasks; all other threads execute those tasks.
-Data races are avoided: each leaf task writes an exclusive region of \texttt{M}.
-Shared histogram updates use \texttt{\#pragma~omp~atomic}.
+Posteriorment, veiem que només es creen tasques a les fulles de l'arbre de recursió, en dos casos. O bé quan \texttt{equal} és cert, és a dir, les boreres del tile són iguals i es pot omplir el tile amb un valor uniforme, o bé quan el nombre de columnes és menor o igual que la mida del tile, cosa que indica que s'ha arribat a un tile prou petit perquè es calculi directament. En ambdós casos es crea una tasca per dur a terme l'operació corresponent. Vegeu-ho al propi codi, no s'adjunta perquè cada cas base ocupa moltes línies.\\
+Si no es compleix cap de les condicions anteriors, la recursió es fa als quatre quadrants del tile (o a les dues meitats de columnes), però sense crear tasques per a aquestes crides recursives, cosa característica de l'estratègia \textbf{leaf}.\\
+Cal destacar també que s'han evitat els problemes de compartició de dades en els accessos a l'histograma i a la biblioteca X detectats a la pràctica 3, de la manera següent:
+\begin{itemize}
+    \item Per l'accès a histograma, s'ha utilitzat \texttt{\#pragma omp atomic}:
+    \begin{lstlisting}[language=C]
+#pragma omp atomic
+histogram[M[y][x] - 1] += (NRows * NCols);
+    \end{lstlisting}
 
-\paragraph{Limitation.}
-With the leaf strategy, task creation is inherently \emph{serial} -- only the thread
-executing the single region can recurse and spawn.
-This means that at the start of execution, while the tree is being traversed, most
-threads remain idle waiting for tasks.
-The Improved Leaf version (Section~\ref{sec:rec-improved}) addresses this bottleneck.
+    \item Per l'accès a la librería X, las instruccions s'han protegit amb \texttt{\#pragma omp critical}:
+    \begin{lstlisting}[language=C]
+#pragma omp critical
+{
+    XSetForeground(display, gc, color);
+    XDrawPoint(display, win, gc, px, py);
+}
+    \end{lstlisting}
+\end{itemize}
 
 \subsection{Modelfactor Analysis}
 \label{sec:rec-leaf-mf}
